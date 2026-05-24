@@ -17,12 +17,12 @@ from services import db_service
 router = APIRouter()
 
 AVAILABLE_PLUGINS = [
-    {"id": "calculator",  "name": "Calculator",       "description": "Evaluate math expressions safely",          "icon": "🧮"},
-    {"id": "summarizer",  "name": "Summarizer",        "description": "Summarize long text with bullet points",    "icon": "📝"},
-    {"id": "translator",  "name": "Translator",        "description": "Detect and translate text (via Ollama)",    "icon": "🌐"},
-    {"id": "coderunner",  "name": "Code Runner",       "description": "Run Python code snippets safely",          "icon": "⚡"},
-    {"id": "wordcount",   "name": "Word Counter",      "description": "Count words, chars, sentences in text",    "icon": "🔢"},
-    {"id": "jsonformat",  "name": "JSON Formatter",    "description": "Format and validate JSON strings",         "icon": "{}"},
+    {"id": "calculator",  "name": "Calculator",       "description": "Evaluate math expressions safely",          "icon": "calculator"},
+    {"id": "summarizer",  "name": "Summarizer",        "description": "Summarize long text with bullet points",    "icon": "summarizer"},
+    {"id": "translator",  "name": "Translator",        "description": "Detect and translate text (via Ollama)",    "icon": "translator"},
+    {"id": "coderunner",  "name": "Code Runner",       "description": "Run Python code snippets safely",          "icon": "coderunner"},
+    {"id": "wordcount",   "name": "Word Counter",      "description": "Count words, chars, sentences in text",    "icon": "wordcount"},
+    {"id": "jsonformat",  "name": "JSON Formatter",    "description": "Format and validate JSON strings",         "icon": "jsonformat"},
 ]
 
 
@@ -122,7 +122,7 @@ def _summarizer(text: str) -> str:
     top = [s for _, s in scores[:5]]
     # Restore original order
     ordered = [s for s in sentences if s in top]
-    return "📝 Summary:\n" + " ".join(ordered[:5])
+    return "Summary:\n" + " ".join(ordered[:5])
 
 
 def _jsonformat(text: str) -> str:
@@ -131,7 +131,7 @@ def _jsonformat(text: str) -> str:
         parsed = json.loads(text)
         return json.dumps(parsed, indent=2, ensure_ascii=False)
     except json.JSONDecodeError as e:
-        return f"❌ Invalid JSON: {e}"
+        return f"Invalid JSON: {e}"
 
 
 def _coderunner(code: str) -> str:
@@ -145,7 +145,7 @@ def _coderunner(code: str) -> str:
                "__import__", "open(", "exec(", "eval(", "compile("]
     for b in BLOCKED:
         if b in code:
-            return f"❌ Blocked: '{b}' is not allowed in sandbox."
+            return f"Blocked: '{b}' is not allowed in sandbox."
 
     with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
         f.write(code)
@@ -157,11 +157,11 @@ def _coderunner(code: str) -> str:
             capture_output=True, text=True, timeout=5
         )
         output = result.stdout or result.stderr or "(no output)"
-        return f"✅ Output:\n{output[:2000]}"
+        return f"Output:\n{output[:2000]}"
     except subprocess.TimeoutExpired:
         return "⏱ Timeout: code took more than 5 seconds."
     except Exception as e:
-        return f"❌ Error: {e}"
+        return f"Error: {e}"
     finally:
         os.unlink(tmp)
 
@@ -180,7 +180,7 @@ def _translator(text: str) -> str:
     else: lang = "English / Latin script"
 
     return (
-        f"🔍 Detected Language: {lang}\n\n"
-        f"💡 Tip: Ask LocalMind to translate this text for you!\n"
+        f"Detected Language: {lang}\n\n"
+        f"Tip: Ask LocalMind to translate this text for you!\n"
         f'Example: "Translate the following to English: {text[:100]}..."'
     )
